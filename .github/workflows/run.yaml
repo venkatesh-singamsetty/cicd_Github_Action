@@ -30,3 +30,4 @@ jobs:
      
           cat report.md report1.md >> combined_file.md
           cml comment create combined_file.md
+
