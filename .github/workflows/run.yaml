@@ -20,7 +20,6 @@ jobs:
       - name: Train model
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        working-directory: day-98-2026Apr15/cicd_Github_Action
         run: |
           pip install -r requirements.txt
           python train_model.py
