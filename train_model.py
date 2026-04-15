@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import itertools
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, precision_score, f1_score, recall_score
 sns.set(style='white')
@@ -35,7 +35,7 @@ X_test = test_data.drop('target', axis=1).values.astype('float32')
 y_test = test_data.loc[:, 'target'].values.astype('int32')
 
 # Logistic Regression
-logreg = LogisticRegression(C=0.0001, solver='lbfgs', max_iter=100, multi_class='multinomial')
+logreg = LogisticRegression(C=0.0001, solver='lbfgs', max_iter=100)
 logreg.fit(X_train, y_train)
 predictions_lr = logreg.predict(X_test)
 
@@ -49,20 +49,17 @@ train_acc_lr = logreg.score(X_train, y_train) * 100
 test_acc_lr = logreg.score(X_test, y_test) * 100
 
 # Random Forest
-rf_reg = RandomForestRegressor()
-rf_reg.fit(X_train, y_train)
-predictions_rf = rf_reg.predict(X_test)
-
-# Convert predictions to class labels
-predictions_rf_class = np.round(predictions_rf).astype(int)
+rf_clf = RandomForestClassifier()
+rf_clf.fit(X_train, y_train)
+predictions_rf_class = rf_clf.predict(X_test)
 
 f1_rf = f1_score(y_test, predictions_rf_class, average='micro')
 prec_rf = precision_score(y_test, predictions_rf_class, average='micro')
 recall_rf = recall_score(y_test, predictions_rf_class, average='micro')
 
 # Accuracy
-train_acc_rf = rf_reg.score(X_train, y_train) * 100
-test_acc_rf = rf_reg.score(X_test, y_test) * 100
+train_acc_rf = rf_clf.score(X_train, y_train) * 100
+test_acc_rf = rf_clf.score(X_test, y_test) * 100
 
 # Confusion Matrix Plotting Function
 def plot_cm(cm, target_name, title="Confusion Matrix", cmap=None, normalize=True):
@@ -95,13 +92,12 @@ def plot_cm(cm, target_name, title="Confusion Matrix", cmap=None, normalize=True
     plt.ylabel('True Label')
     plt.xlabel('Predicted Label\naccuracy={:0.4f}; misclass={:0.4f}'.format(accuracy, misclass))
     plt.savefig('ConfusionMatrix.png', dpi=120)
-    plt.show()
 
 target_name = np.array(['setosa', 'versicolor', 'virginica'])
 plot_cm(cm_lr, target_name, title="Confusion Matrix (Logistic Regression)", cmap=None, normalize=True)
 
 # Feature Importance Plotting
-importances = rf_reg.feature_importances_
+importances = rf_clf.feature_importances_
 labels = dataset.columns[:-1]  # Exclude 'target' column for features
 feature_df = pd.DataFrame(list(zip(labels, importances)), columns=['feature', 'importance'])
 features = feature_df.sort_values(by='importance', ascending=False)
@@ -115,7 +111,6 @@ ax.set_title('Random Forest Feature Importances', fontsize=12)
 
 # Show the feature importance plot
 plt.tight_layout()  # Make sure layout is adjusted
-plt.show()  # This ensures the plot will be shown on the screen
 
 # Save the feature importance plot as a PNG image
 plt.savefig('FeatureImportance.png')
